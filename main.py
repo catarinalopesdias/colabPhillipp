@@ -259,7 +259,7 @@ def read_and_decode(example_proto):
 
 
 #####################################################################
-### VISUALIYE RESULTS
+### VISUALIzE RESULTS
 def visualize_all(resized_input, reference , predicted, title ):
   
   #shape input
@@ -311,6 +311,8 @@ def visualize_all(resized_input, reference , predicted, title ):
 
   ####################################################################
   fig = plt.figure(figsize=(10, 10), dpi=100, edgecolor="black" )
+  fig.suptitle(title, fontsize=12)
+
   #plt.title("Model results")
   
   grid = ImageGrid(fig, 311,
@@ -405,14 +407,18 @@ def visualize_all(resized_input, reference , predicted, title ):
   ##    Process data for training and define hyperparameters
   ####################################################
 tfrecord_files_train = []
-tfrecord_dir = "processed/trn"
+#folder_trn = "trn_synthetic100"
+folder_trn = "trn_synthetic10"
+
+tfrecord_dir_trn = "processed/" + folder_trn
+
 
 # List all files in the directory
-files_in_trn_directory = os.listdir(tfrecord_dir)
+files_in_trn_directory = os.listdir(tfrecord_dir_trn)
 
 for file in files_in_trn_directory:
     if file.endswith(".tfrecords"):
-        full_path =os.path.join(tfrecord_dir, file)
+        full_path =os.path.join(tfrecord_dir_trn, file)
         tfrecord_files_train.append(full_path)
 
 # Create a dataset from the list of TFRecord files -Load dataset
@@ -430,8 +436,8 @@ tfrecord_dataset_train = tfrecord_dataset_train.map(read_and_decode)
 ################################################################################
 ##################################################################################
 # batch size and number of epochs
-batch_size = 2
-num_epochs = 250#200
+batch_size = 2#2
+num_epochs = 250#2#250#200
 
 # Shuffle and batch the dataset
 tfrecord_dataset_train = tfrecord_dataset_train.shuffle(buffer_size=1000)
@@ -442,14 +448,15 @@ tfrecord_dataset_train = tfrecord_dataset_train.repeat(num_epochs)
 ### Preprocess data for testing
 #################################################################
 tfrecord_files_tst = []
-tfrecord_dir_tst = "processed/tst"
+folder_test = "tst_synthetic50"
+tfrecord_dir_tst = "processed/" + folder_test
 
 # List all files in the directory
 files_in_tst_directory = os.listdir(tfrecord_dir_tst)
 
 for file in files_in_tst_directory:
     if file.endswith(".tfrecords"):
-        full_path =os.path.join(tfrecord_dir, file)
+        full_path =os.path.join(tfrecord_dir_tst, file)
         tfrecord_files_tst.append(full_path)
 
 tfrecord_dataset_tst = tf.data.TFRecordDataset(tfrecord_files_tst)
@@ -610,10 +617,11 @@ for data_sample_tst in dataset_test_np:
     #visualize(output_d, para="ref")
     #visualize(predicted[0,:,:,:,0],para="pred")
     
-    prediction_title ="prediction_" + str(num_epochs) + "epochs"
+    prediction_title ="testset" + str(counter) + "_prediction_" +  str(num_epochs) + "epochs_" +folder_trn +"_"+ folder_test
+    print(prediction_title)
     visualize_all(X_test[0,:,:,:,0], output_ds_tst, predicted[0,:,:,:,0], prediction_title)
   # for plotting just the first image - uncomment if you want to see every prediction
-    break
+    #break
 
 
 plt.plot(loss_history1)
