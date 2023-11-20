@@ -8,6 +8,7 @@ import numpy as np
 import os
 import pickle
 from mpl_toolkits.axes_grid1 import ImageGrid
+from tensorflow.keras.models import save_model
 
 # Check https://colab.research.google.com/drive/1Omj-taD4P4oBBZOrZKf8gdfp8sMP972r?usp=sharing
 
@@ -480,7 +481,7 @@ model = Model(input_tensor, ushape2) #get from orig deepQSM algorithm
 model.compile(optimizer='adam', loss='mean_absolute_error')
 
 
-############################################################
+###################################################"model.h5"#########
 ### Predict model without training
 ############################################################
 dataset_test_np = parsed_dataset_tst.as_numpy_iterator()
@@ -559,7 +560,7 @@ checkpoint_dir1 = os.path.dirname(checkpoint_path1)
 
 cp_callback = ModelCheckpoint(checkpoint_path1,
                                 save_weights_only = True,
-                                save_freq = 50,
+                                save_freq = 10,
                                 verbose = 1)
 
 steps_p_e = int(len(tfrecord_files_train)//batch_size)
@@ -576,7 +577,13 @@ loss_history1 = model_train.history['loss']
 with open('loss_history1.pickle', 'wb') as f:
     pickle.dump([loss_history1, num_epochs], f)
 
-
+# if the demo_folder directory is not present then create it. 
+if not os.path.exists("models"): 
+    os.makedirs("models") 
+    
+model_name = "models/model_" + str(num_epochs) +"epochs_" + "batchsize"+ str(batch_size) + "_trnfolder_" + folder_trn+".h5"
+#model.save(model_name)
+save_model(model, model_name)
 ########################################################################
 ### Load latest checkpoints from training
 ########################################################################
@@ -617,21 +624,28 @@ for data_sample_tst in dataset_test_np:
     #visualize(output_d, para="ref")
     #visualize(predicted[0,:,:,:,0],para="pred")
     
-    prediction_title ="testset" + str(counter) + "_prediction_" +  str(num_epochs) + "epochs_" +folder_trn +"_"+ folder_test
+    #prediction_title ="prediction_batch" + str(batch_size) + "_" + str(num_epochs) + "epochs_trn_" folder_trn +"tst" + 
+    prediction_title ="prediction_batch" + str(batch_size) + "_" + str(num_epochs) + "epochs_" + folder_trn +"_"+ folder_test + "_" + str(counter)
     print(prediction_title)
     visualize_all(X_test[0,:,:,:,0], output_ds_tst, predicted[0,:,:,:,0], prediction_title)
   # for plotting just the first image - uncomment if you want to see every prediction
     #break
 
-
-plt.plot(loss_history1)
+#x_axis = np.linspace(1,num_epochs,num_epochs)
+x_axis = np.linspace(1,num_epochs,num_epochs)
+plt.plot(x_axis, loss_history1)
 plt.ylabel('Loss')
 plt.xlabel('Epochs')
 #plt.yscale('log')
 plt.ylim(0, 0.25) 
+plt.xlim(0, num_epochs) 
 plt.title("Loss history")
 plt.ticklabel_format(style='plain')
-loss_title ="images/loss_" + str(num_epochs) + "epochs.jpg"
+
+
+
+
+loss_title ="images/loss_batch" + str(batch_size) + "_" + str(num_epochs) + "epochs_" + folder_trn +"_"+ folder_test 
 plt.savefig(loss_title)
 plt.show()
 
