@@ -9,7 +9,7 @@ import os
 import tensorflow as tf
 #import matplotlib.pyplot as plt
 #import numpy as np
-from datahandling import read_and_decode, visualize_all
+from datahandling import read_and_decode_tf, visualize_all
 
 ###############################################################################
 # Load existing model
@@ -59,7 +59,7 @@ for file in files_in_tst_directory:
 tfrecord_dataset_tst = tf.data.TFRecordDataset(tfrecord_files_tst)
 
 # Apply the parsing function to each record
-parsed_dataset_tst = tfrecord_dataset_tst.map(read_and_decode)
+parsed_dataset_tst = tfrecord_dataset_tst.map(read_and_decode_tf)
 
 ##################################################################
 ############ Predict and plot original data
